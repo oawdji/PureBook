@@ -57,13 +57,10 @@ export async function POST(request: NextRequest) {
       return apiError("请先登录", 1002, 401);
     }
 
-    const { name, icon, color } = await request.json();
+    const { name, color } = await request.json();
 
     if (!name || typeof name !== "string" || name.trim().length > 30) {
       return apiError("分类名称须为 1-30 个字符", 1001);
-    }
-    if (!icon || typeof icon !== "string") {
-      return apiError("请选择分类图标", 1001);
     }
     if (!color || typeof color !== "string") {
       return apiError("请选择分类颜色", 1001);
@@ -84,7 +81,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: user.userId,
         name: name.trim(),
-        icon,
+        icon: name.trim().charAt(0),
         color,
         isPreset: false,
       },

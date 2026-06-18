@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
       return {
         categoryId: c.categoryId,
         categoryName: cat?.name ?? "未知",
-        categoryIcon: cat?.icon ?? "QuestionOutlined",
+        categoryIcon: cat?.name?.charAt(0) ?? "?",
         categoryColor: cat?.color ?? "#95A5A6",
         amount,
         percentage:

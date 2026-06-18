@@ -162,12 +162,7 @@ export default function TransactionsPage() {
       key: "category",
       width: 120,
       render: (_, record) => (
-        <Tag
-          color={record.category.color}
-          icon={
-            <span className="text-xs">{record.category.icon}</span>
-          }
-        >
+        <Tag color={record.category.color}>
           {record.category.name}
         </Tag>
       ),
@@ -182,7 +177,7 @@ export default function TransactionsPage() {
       title: "日期",
       dataIndex: "transDate",
       key: "transDate",
-      width: 110,
+      width: 220,
     },
     {
       title: "备注",

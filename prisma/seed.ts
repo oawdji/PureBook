@@ -3,16 +3,16 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const presetCategories = [
-  { name: "餐饮", icon: "CoffeeOutlined", color: "#FF6B6B" },
-  { name: "交通", icon: "CarOutlined", color: "#4ECDC4" },
-  { name: "购物", icon: "ShoppingCartOutlined", color: "#FFD93D" },
-  { name: "住房", icon: "HomeOutlined", color: "#6C5CE7" },
-  { name: "娱乐", icon: "SmileOutlined", color: "#E056A0" },
-  { name: "医疗", icon: "MedicineBoxOutlined", color: "#00B894" },
-  { name: "工资", icon: "DollarOutlined", color: "#27AE60" },
-  { name: "其他", icon: "EllipsisOutlined", color: "#95A5A6" },
-  { name: "教育", icon: "ReadOutlined", color: "#3498DB" },
-  { name: "通讯", icon: "PhoneOutlined", color: "#E67E22" },
+  { name: "餐饮", color: "#FF6B6B" },
+  { name: "交通", color: "#4ECDC4" },
+  { name: "购物", color: "#FFD93D" },
+  { name: "住房", color: "#6C5CE7" },
+  { name: "娱乐", color: "#E056A0" },
+  { name: "医疗", color: "#00B894" },
+  { name: "工资", color: "#27AE60" },
+  { name: "其他", color: "#95A5A6" },
+  { name: "教育", color: "#3498DB" },
+  { name: "通讯", color: "#E67E22" },
 ];
 
 async function main() {
@@ -27,7 +27,7 @@ async function main() {
       await prisma.category.create({
         data: {
           name: category.name,
-          icon: category.icon,
+          icon: category.name.charAt(0),
           color: category.color,
           isPreset: true,
         },

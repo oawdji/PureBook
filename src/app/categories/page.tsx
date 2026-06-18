@@ -9,7 +9,6 @@ import {
   Input,
   Select,
   Typography,
-  Tag,
   Row,
   Col,
   Space,
@@ -21,15 +20,6 @@ import EmptyState from "@/components/ui/EmptyState";
 import type { CategoryInfo } from "@/types";
 
 const { Title, Text } = Typography;
-
-// 预设图标和颜色选项
-const iconOptions = [
-  "CoffeeOutlined", "CarOutlined", "ShoppingCartOutlined",
-  "HomeOutlined", "SmileOutlined", "MedicineBoxOutlined",
-  "DollarOutlined", "EllipsisOutlined", "ReadOutlined",
-  "PhoneOutlined", "GithubOutlined", "HeartOutlined",
-  "StarOutlined", "FireOutlined", "RocketOutlined",
-];
 
 const colorOptions = [
   "#FF6B6B", "#4ECDC4", "#FFD93D", "#6C5CE7",
@@ -46,6 +36,7 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
+  const watchedColor: string | undefined = Form.useWatch("color", form);
 
   // 删除确认
   const [deleteTarget, setDeleteTarget] = useState<CategoryInfo | null>(null);
@@ -70,7 +61,6 @@ export default function CategoriesPage() {
       setEditingId(category.id);
       form.setFieldsValue({
         name: category.name,
-        icon: category.icon,
         color: category.color,
       });
     } else {
@@ -185,30 +175,23 @@ export default function CategoriesPage() {
                     </div>
                     <div>
                       <Text strong>{cat.name}</Text>
-                      {cat.isPreset && (
-                        <Tag color="blue" className="ml-2">
-                          预设
-                        </Tag>
-                      )}
                     </div>
                   </Space>
-                  {!cat.isPreset && (
-                    <Space>
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<EditOutlined />}
-                        onClick={() => openModal(cat)}
-                      />
-                      <Button
-                        type="text"
-                        size="small"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => setDeleteTarget(cat)}
-                      />
-                    </Space>
-                  )}
+                  <Space>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<EditOutlined />}
+                      onClick={() => openModal(cat)}
+                    />
+                    <Button
+                      type="text"
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => setDeleteTarget(cat)}
+                    />
+                  </Space>
                 </div>
               </Card>
             </motion.div>
@@ -234,34 +217,28 @@ export default function CategoriesPage() {
           >
             <Input maxLength={30} placeholder="如：宠物、旅游" />
           </Form.Item>
-          <Form.Item
-            name="icon"
-            label="图标"
-            rules={[{ required: true, message: "请选择图标" }]}
-          >
-            <Select
-              placeholder="选择图标"
-              options={iconOptions.map((i) => ({ value: i, label: i }))}
-            />
-          </Form.Item>
-          <Form.Item
-            name="color"
-            label="颜色"
-            rules={[{ required: true, message: "请选择颜色" }]}
-          >
-            <Select
-              placeholder="选择颜色"
-              options={colorOptions.map((c) => ({ value: c, label: c }))}
-              optionRender={({ value }) => (
-                <Space>
-                  <div
-                    className="w-4 h-4 rounded"
-                    style={{ backgroundColor: value as string }}
-                  />
-                  {value}
-                </Space>
-              )}
-            />
+          <Form.Item label="颜色" required>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {colorOptions.map((c) => (
+                <div
+                  key={c}
+                  className="w-7 h-7 rounded-full cursor-pointer border-2 hover:scale-110 transition-transform"
+                  style={{
+                    backgroundColor: c,
+                    borderColor:
+                      watchedColor === c ? "#1677ff" : "#e5e5e5",
+                  }}
+                  onClick={() => form.setFieldValue("color", c)}
+                />
+              ))}
+            </div>
+            <Form.Item
+              name="color"
+              noStyle
+              rules={[{ required: true, message: "请选择或输入颜色" }]}
+            >
+              <Input placeholder="或输入自定义 #HEX 颜色" maxLength={7} />
+            </Form.Item>
           </Form.Item>
         </Form>
       </Modal>
@@ -288,7 +265,7 @@ export default function CategoriesPage() {
             .filter((c) => c.id !== deleteTarget?.id)
             .map((c) => ({
               value: c.id,
-              label: `${c.name}${c.isPreset ? " (预设)" : ""}`,
+              label: c.name,
             }))}
         />
       </Modal>

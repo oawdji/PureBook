@@ -32,17 +32,12 @@ export async function PUT(
       return apiError("分类不存在", 1004, 404);
     }
 
-    // 系统预设不可编辑
-    if (category.isPreset) {
-      return apiError("系统预设分类不可编辑", 1003, 403);
-    }
-
-    // 只能编辑自己的分类
-    if (category.userId !== user.userId) {
+    // 只能编辑自己的分类或系统预设分类
+    if (category.userId !== null && category.userId !== user.userId) {
       return apiError("无权编辑此分类", 1003, 403);
     }
 
-    const { name, icon, color } = await request.json();
+    const { name, color } = await request.json();
 
     const updateData: Record<string, string> = {};
     if (name !== undefined) {
@@ -50,8 +45,9 @@ export async function PUT(
         return apiError("分类名称须为 1-30 个字符", 1001);
       }
       updateData.name = name.trim();
+      // 图标自动设为名称首字
+      updateData.icon = name.trim().charAt(0);
     }
-    if (icon !== undefined) updateData.icon = icon;
     if (color !== undefined) updateData.color = color;
 
     const updated = await prisma.category.update({
@@ -101,13 +97,8 @@ export async function DELETE(
       return apiError("分类不存在", 1004, 404);
     }
 
-    // 系统预设不可删除
-    if (category.isPreset) {
-      return apiError("系统预设分类不可删除", 1003, 403);
-    }
-
-    // 只能删除自己的分类
-    if (category.userId !== user.userId) {
+    // 只能删除自己的分类或系统预设分类
+    if (category.userId !== null && category.userId !== user.userId) {
       return apiError("无权删除此分类", 1003, 403);
     }
 

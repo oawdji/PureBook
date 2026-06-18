@@ -41,7 +41,7 @@ export async function PUT(
       updateData.name = name.trim();
     }
     if (type !== undefined) {
-      const validTypes = ["cash", "bank", "credit"];
+      const validTypes = ["cash", "bank", "credit", "payment"];
       if (!validTypes.includes(type)) {
         return apiError("账户类型无效", 1001);
       }

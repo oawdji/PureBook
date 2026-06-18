@@ -2,7 +2,7 @@
 
 export type TransactionType = "income" | "expense";
 
-export type AccountType = "cash" | "bank" | "credit";
+export type AccountType = "cash" | "bank" | "credit" | "payment";
 
 // ---- 实体类型 ----
 

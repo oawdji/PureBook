@@ -233,7 +233,7 @@ export default function TransactionsPage() {
       </Typography.Title>
 
       {/* 筛选栏 */}
-      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 shadow-sm">
+      <div className="bg-white p-4 rounded-lg mb-4 shadow-sm">
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={6}>
             <Select
@@ -335,7 +335,7 @@ export default function TransactionsPage() {
             onChange: (page, pageSize) =>
               setPagination((prev) => ({ ...prev, page, pageSize })),
           }}
-          className="!bg-white dark:!bg-gray-900 !shadow-sm !rounded-lg"
+          className="!bg-white !shadow-sm !rounded-lg"
         />
       )}
 

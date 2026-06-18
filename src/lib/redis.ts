@@ -7,6 +7,7 @@ const globalForRedis = globalThis as unknown as {
 export const redis =
   globalForRedis.redis ??
   new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
+    lazyConnect: true,
     maxRetriesPerRequest: 3,
     retryStrategy(times) {
       if (times > 3) return null;

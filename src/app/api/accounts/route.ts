@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
     if (!name || typeof name !== "string" || name.trim().length > 50) {
       return apiError("账户名称须为 1-50 个字符", 1001);
     }
-    const validTypes = ["cash", "bank", "credit"];
+    const validTypes = ["cash", "bank", "credit", "payment"];
     if (!validTypes.includes(type)) {
-      return apiError("账户类型无效，可选：cash / bank / credit", 1001);
+      return apiError("账户类型无效，可选：cash / bank / credit / payment", 1001);
     }
 
     const balance = initialBalance ? Number(initialBalance) : 0;

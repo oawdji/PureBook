@@ -79,8 +79,8 @@ export default function StatisticsPage() {
         >
           <Row gutter={[16, 16]}>
             <Col xs={8}>
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
-                <div className="text-gray-500 dark:text-gray-400 text-sm">
+              <div className="bg-green-50 rounded-xl p-4 text-center">
+                <div className="text-gray-500 text-sm">
                   本月收入
                 </div>
                 <div className="text-xl font-bold text-green-500 mt-1">
@@ -89,8 +89,8 @@ export default function StatisticsPage() {
               </div>
             </Col>
             <Col xs={8}>
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
-                <div className="text-gray-500 dark:text-gray-400 text-sm">
+              <div className="bg-red-50 rounded-xl p-4 text-center">
+                <div className="text-gray-500 text-sm">
                   本月支出
                 </div>
                 <div className="text-xl font-bold text-red-500 mt-1">
@@ -99,8 +99,8 @@ export default function StatisticsPage() {
               </div>
             </Col>
             <Col xs={8}>
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
-                <div className="text-gray-500 dark:text-gray-400 text-sm">
+              <div className="bg-blue-50 rounded-xl p-4 text-center">
+                <div className="text-gray-500 text-sm">
                   本月结余
                 </div>
                 <div className="text-xl font-bold text-blue-500 mt-1">

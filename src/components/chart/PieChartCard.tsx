@@ -69,7 +69,7 @@ export default function PieChartCard({
                 className="w-3 h-3 rounded-full inline-block"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-gray-600 dark:text-gray-300">
+              <span className="text-gray-600">
                 {item.name}
               </span>
             </div>

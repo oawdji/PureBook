@@ -1,4 +1,7 @@
-version: "3.8"
+# ⚠️ 端口说明：
+#   PostgreSQL 映射到 5433（避免与本地 PostgreSQL 5432 冲突）
+#   Redis 映射到 6380（避免与本地 Redis 6379 冲突）
+#   生产环境请恢复标准端口
 
 services:
   nginx:
@@ -41,7 +44,7 @@ services:
     expose:
       - "5432"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-purebook}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-purebook123}
@@ -63,7 +66,7 @@ services:
     expose:
       - "6379"
     ports:
-      - "6379:6379"
+      - "6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

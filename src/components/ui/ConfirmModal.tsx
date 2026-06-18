@@ -33,7 +33,7 @@ export default function ConfirmModal({
       cancelText="取消"
       centered
     >
-      <p className="text-gray-600 dark:text-gray-300">{content}</p>
+      <p className="text-gray-600">{content}</p>
     </Modal>
   );
 }

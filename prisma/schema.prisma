@@ -23,7 +23,7 @@ model Account {
   id           Int           @id @default(autoincrement())
   userId       Int           @map("user_id")
   name         String        @db.VarChar(50)
-  type         String        @db.VarChar(20) // cash, bank, credit
+  type         String        @db.VarChar(20) // cash, bank, credit, payment
   balance      Decimal       @default(0) @db.Decimal(12, 2)
   createdAt    DateTime      @default(now()) @map("created_at")
   user         User          @relation(fields: [userId], references: [id])

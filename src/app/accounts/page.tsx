@@ -33,12 +33,14 @@ const accountTypeLabels: Record<string, string> = {
   cash: "现金",
   bank: "银行",
   credit: "信用卡",
+  payment: "支付软件",
 };
 
 const accountTypeColors: Record<string, string> = {
   cash: "green",
   bank: "blue",
   credit: "purple",
+  payment: "orange",
 };
 
 export default function AccountsPage() {
@@ -276,6 +278,7 @@ export default function AccountsPage() {
                 { value: "bank", label: "🏦 银行卡" },
                 { value: "cash", label: "💵 现金" },
                 { value: "credit", label: "💳 信用卡" },
+                { value: "payment", label: "📱 支付软件" },
               ]}
             />
           </Form.Item>

@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { verifyAuth } from "@/lib/auth";
 import { apiResponse, apiError, paginatedResponse } from "@/lib/utils";
-import type { TransactionListQuery } from "@/types";
 
 /**
  * GET /api/transactions — 获取收支记录列表（分页 + 筛选）

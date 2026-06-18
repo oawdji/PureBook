@@ -10,7 +10,6 @@ import {
   Typography,
   Tabs,
   message,
-  Space,
 } from "antd";
 import { UserOutlined, LockOutlined, WalletOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";

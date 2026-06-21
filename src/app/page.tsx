@@ -21,10 +21,9 @@ export default function DashboardPage() {
   const [trend, setTrend] = useState<TrendData | null>(null);
   const [monthStats, setMonthStats] = useState<MonthlyStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authChecking, setAuthChecking] = useState(true);
 
   useEffect(() => {
-    // 检查登录状态并拉取数据
+    // 拉取仪表盘数据
     const today = new Date();
     const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 
@@ -35,27 +34,18 @@ export default function DashboardPage() {
       fetch("/api/statistics/trend").then((r) => r.json()),
     ])
       .then(([monthlyData, trendData]) => {
-        if (monthlyData.code === 0) setMonthStats(monthlyData.data);
-        else if (monthlyData.code === 1002) {
-          // 未登录
+        if (monthlyData.code === 1002) {
+          // token 过期 → 跳转登录（中间件会接管后续）
           router.push("/login");
           return;
         }
+        if (monthlyData.code === 0) setMonthStats(monthlyData.data);
         if (trendData.code === 0) setTrend(trendData.data);
       })
-      .catch(() => {
-        // 如果 API 不可用，尝试跳转登录
-        if (!document.cookie.includes("token=")) {
-          router.push("/login");
-        }
-      })
-      .finally(() => {
-        setAuthChecking(false);
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, [router]);
 
-  if (authChecking) {
+  if (loading) {
     return (
       <div className="p-8">
         <Skeleton loading rows={6} />

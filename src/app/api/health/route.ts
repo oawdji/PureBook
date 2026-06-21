@@ -13,16 +13,16 @@ export async function GET() {
     try {
       await prisma.$queryRaw`SELECT 1`;
       checks.database = "connected";
-    } catch (e: any) {
-      console.error("[health] DB error:", e?.message || e);
+    } catch {
+      // ignored
     }
 
     // 检查 Redis
     try {
       await redis.ping();
       checks.redis = "connected";
-    } catch (e: any) {
-      console.error("[health] Redis error:", e?.message || e);
+    } catch {
+      // ignored
     }
 
     const isHealthy =

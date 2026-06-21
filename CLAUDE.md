@@ -11,11 +11,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 层级 | 技术 |
 |------|------|
 | 前端 | React 18 + Next.js 14 (App Router) + TypeScript |
-| CSS | Tailwind CSS 3 + Ant Design 5 |
-| 动画 | framer-motion 10 |
-| 图表 | Recharts 2 |
-| 数据库 | PostgreSQL 16 (Prisma ORM) |
-| 缓存 | Redis 7 |
+| CSS | Tailwind CSS 3 + Ant Design 6 |
+| 动画 | framer-motion 12 |
+| 图表 | Recharts 3 |
+| 数据库 | PostgreSQL 16 (Prisma ORM 5) |
+| 缓存 | Redis 7 (ioredis) |
+| 认证 | JWT (jose) + bcryptjs + HttpOnly Cookie |
 | 部署 | Docker Compose (Nginx + Next.js + PostgreSQL + Redis) |
 
 ## 项目文档
@@ -31,76 +32,158 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 修改任何功能前，先查阅对应的设计文档。修改设计文档后，同步更新依赖它的下游文档。
 
-## 项目结构（规划中）
+## 项目结构
 
 ```
 PureBook/
 ├── src/
-│   ├── app/                    # Next.js App Router 页面
-│   │   ├── layout.tsx          # 根布局
-│   │   ├── page.tsx            # 仪表盘首页
-│   │   ├── login/page.tsx
-│   │   ├── transactions/       # 收支记录
-│   │   ├── categories/         # 分类管理
-│   │   ├── accounts/           # 账户管理
-│   │   └── statistics/         # 统计页
-│   ├── api/                    # Next.js API Routes
-│   │   ├── auth/               # 认证
-│   │   ├── transactions/       # 交易 CRUD
-│   │   ├── categories/         # 分类 CRUD
-│   │   ├── accounts/           # 账户 CRUD + 转账
-│   │   └── statistics/         # 统计聚合
-│   ├── components/             # React 组件
-│   │   ├── layout/             # Header, Sidebar
-│   │   ├── dashboard/          # 概览卡片
-│   │   ├── transaction/        # 记录表单、列表
-│   │   ├── category/           # 分类选择器
-│   │   ├── chart/              # 图表封装
-│   │   └── ui/                 # 通用 UI
-│   ├── lib/                    # 工具库 (prisma, redis, auth, utils)
-│   ├── hooks/                  # 自定义 Hooks
-│   ├── theme/                  # 浅色/深色主题
-│   └── types/                  # TypeScript 类型
+│   ├── app/                          # Next.js App Router
+│   │   ├── layout.tsx                # 根布局（AntdRegistry + AppLayout）
+│   │   ├── page.tsx                  # 仪表盘首页
+│   │   ├── globals.css               # Tailwind + Ant Design 样式覆盖
+│   │   ├── login/page.tsx            # 登录/注册页（Tabs 切换）
+│   │   ├── transactions/page.tsx     # 收支记录（筛选 + 分页 + CRUD）
+│   │   ├── categories/page.tsx       # 分类管理（卡片列表 + CRUD）
+│   │   ├── accounts/page.tsx         # 账户管理（卡片 + 转账 + CRUD）
+│   │   ├── statistics/page.tsx       # 统计分析（饼图 + 柱状图）
+│   │   └── api/                      # Next.js API Routes（13 个端点）
+│   │       ├── auth/login/route.ts
+│   │       ├── auth/register/route.ts
+│   │       ├── transactions/route.ts       # GET (分页筛选) + POST
+│   │       ├── transactions/[id]/route.ts  # GET + PUT + DELETE
+│   │       ├── transactions/export/route.ts # GET CSV 导出
+│   │       ├── categories/route.ts         # GET + POST
+│   │       ├── categories/[id]/route.ts    # PUT + DELETE (带迁移)
+│   │       ├── accounts/route.ts           # GET + POST (含初始余额)
+│   │       ├── accounts/[id]/route.ts      # PUT + DELETE (带迁移)
+│   │       ├── accounts/transfer/route.ts  # POST 转账
+│   │       ├── statistics/monthly/route.ts # GET 月度统计
+│   │       ├── statistics/trend/route.ts   # GET 近 6 月趋势
+│   │       └── health/route.ts             # GET 健康检查
+│   ├── components/
+│   │   ├── layout/AppLayout.tsx       # Ant Design Layout 骨架（登录页跳过）
+│   │   ├── layout/Header.tsx          # 顶部栏（折叠按钮）
+│   │   ├── layout/Sidebar.tsx         # 侧边菜单（5 个导航项）
+│   │   ├── dashboard/StatCard.tsx     # 统计卡片（动画数值）
+│   │   ├── transaction/TransactionDrawer.tsx  # 收支表单抽屉
+│   │   ├── chart/PieChartCard.tsx     # 饼图卡片
+│   │   ├── chart/BarChartCard.tsx     # 柱状图卡片
+│   │   ├── chart/MiniTrendChart.tsx   # 迷你趋势图
+│   │   └── ui/                        # ConfirmModal, EmptyState, Skeleton
+│   ├── lib/
+│   │   ├── prisma.ts                  # PrismaClient 单例
+│   │   ├── redis.ts                   # Redis 单例（开发环境全局缓存）
+│   │   ├── auth.ts                    # JWT 签发/验证 + Cookie 读取
+│   │   └── utils.ts                   # 工具函数（金额格式化、日期、API 响应）
+│   ├── hooks/
+│   │   ├── useCategories.ts           # 分类列表 + 刷新
+│   │   └── useStatistics.ts           # 月度统计 + 趋势
+│   ├── types/index.ts                 # 所有 TypeScript 类型定义
+│   └── theme/
+│       ├── index.ts                   # 主题导出（当前仅 light 主题）
+│       └── light.ts                   # Ant Design ThemeConfig
 ├── prisma/
-│   ├── schema.prisma           # 数据模型定义
-│   └── seed.ts                 # 预设分类种子数据
+│   ├── schema.prisma                  # User, Account, Category, Transaction
+│   └── seed.ts                        # 10 个预设分类（餐饮、交通、购物…）
 ├── docker/
-│   ├── Dockerfile
-│   └── nginx.conf
-└── docker-compose.yml
+│   ├── Dockerfile                     # 多阶段构建（builder + runner）
+│   └── nginx.conf                     # HTTPS 反向代理（自签名证书）
+├── docker-compose.yml                 # 4 服务：nginx + app + postgres + redis
+└── next.config.mjs                    # transpilePackages（antd 等）
 ```
 
-## 开发命令（待项目初始化后可用）
+## 开发命令
 
 ```bash
-# 开发环境 — 仅启动基础设施，前端热重载
-docker compose up postgres redis -d
-npm run dev
+# 开发环境 — 启动基础设施 + 热重载
+npm run dev                          # Next.js dev server（端口 3000）
 
-# 数据库迁移
-npx prisma migrate dev
-npx prisma db seed            # 导入预设分类
+# 仅启动基础服务（不需要前端热重载时）
+docker compose up postgres redis -d
+
+# 数据库操作
+npm run prisma:migrate               # 执行迁移（npx prisma migrate dev）
+npm run prisma:seed                  # 导入 10 个预设分类
+npm run prisma:studio                # Prisma Studio 可视化管理
 
 # 生产构建
-docker compose up -d
+docker compose up -d                 # 构建并启动全部服务（nginx:443）
 
-# 代码检查与格式化（待配置）
-npm run lint
-npm run format
+# 代码检查
+npm run lint                         # next lint
 ```
 
-## 数据模型核心关系
+### 环境变量
+
+开发时需要 `.env` 文件：
 
 ```
-User (1) ──< (N) Account
-User (1) ──< (N) Category    # is_preset 区分系统预设 vs 用户自定义
-User (1) ──< (N) Transaction # 每笔记录关联 Account + Category
+DATABASE_URL=postgresql://purebook:purebook123@localhost:5433/purebook
+REDIS_URL=redis://localhost:6380
+JWT_SECRET=<your-secret>
 ```
 
-关键约束：
-- 删除分类时，`is_preset: true` 不可删；自定义分类需迁移关联记录到目标分类
-- 创建/修改/删除 Transaction 时，在数据库事务中同步更新 Account.balance
-- 统计查询结果缓存 Redis 5 分钟
+Docker 端口说明：PostgreSQL 映射到 `5433`，Redis 映射到 `6380`，避免与本地服务冲突。
+
+## 数据模型（Prisma）
+
+```
+User (1) ──< (N) Account        # balance 为 Decimal(12,2)，通过事务同步
+User (1) ──< (N) Category       # isPreset 区分系统预设（userId=null）vs 用户自定义
+User (1) ──< (N) Transaction    # type: income|expense，关联 Account + Category
+```
+
+关键约束与实现细节：
+- **余额一致性**：创建/修改/删除 Transaction 时，在 `prisma.$transaction()` 中同步更新 `Account.balance`。PUT 操作先回滚旧记录对余额的影响，再应用新记录的影响
+- **分类删除**：系统预设分类（`isPreset: true`）可删除但影响所有用户；用户自定义分类删除时，需通过 `migrateToId` 参数将关联记录迁移到目标分类
+- **账户删除**：若有关联记录，必须指定 `migrateToId` 迁移；至少保留一个账户
+- **Decimal 处理**：Prisma Decimal 类型在 API 响应中需调用 `.toString()` 转换，Prisma 查询中使用 `new Prisma.Decimal(value)`
+- **索引**：Transaction 表有 `[userId, transDate]`、`[userId, categoryId]`、`[userId, type]`、`[accountId]` 四个复合索引
+
+## 核心架构模式
+
+### 认证流程
+
+- JWT 通过 HttpOnly + Secure + SameSite=Lax Cookie 传递（7 天有效期）
+- `src/lib/auth.ts` 提供 `signToken`、`verifyToken`、`getCurrentUser`（Server Component）、`verifyAuth`（API Route）
+- 每个 API Route 首先调用 `verifyAuth(request)` 验证身份，返回 `401` + code `1002`
+- 登录保护：API 层是真正的鉴权层；前端 `AppLayout` 中登录页跳过布局骨架；`page.tsx` 仪表盘会检查 API 返回码，未登录跳转 `/login`
+
+### API 统一响应
+
+所有 API 返回格式 `{ code: number, message: string, data: T | null }`：
+- `code: 0` — 成功
+- `code: 1001` — 参数错误（400）
+- `code: 1002` — 未登录（401）
+- `code: 1003` — 无权限（403）
+- `code: 1004` — 资源不存在（404）
+- `code: 1005` — 冲突（409，如用户名/分类名重复）
+- `code: 9999` — 服务器内部错误（500）
+
+使用 `apiResponse(data, message?, code?)` 和 `apiError(message, code?, status?)` 构建响应。
+
+### 统计缓存策略
+
+- 分类列表：Redis 缓存 1 小时，增删改时通过 `redis.del("categories:list:${userId}")` 失效
+- 月度统计 / 趋势：Redis 缓存 5 分钟（300s），Transaction 增删改时通过 `redis.keys("cache:statistics:*:${userId}")` 批量失效
+
+### 前端数据流
+
+- 所有页面组件为 `"use client"`（通过 fetch 调用 API）
+- 自定义 hooks（`useCategories`、`useMonthlyStats`、`useTrend`）封装数据获取和 loading 状态
+- 动画：页面进入使用 `framer-motion` 的 `initial/animate/transition`，卡片交错延迟 `index * 0.05`
+- Ant Design 主题通过 `ConfigProvider locale={zhCN} theme={lightTheme}` 全局注入
+- `next.config.mjs` 中 `transpilePackages` 包含 antd 及其依赖（rc-* 系列），确保 ESM 兼容
+
+### 部署架构
+
+```
+Browser → Nginx (:443, 自签名证书) → Next.js (:3000) → PostgreSQL + Redis
+                                   HTTP → HTTPS 301 重定向
+```
+
+- Dockerfile 为多阶段构建：builder 阶段 `npm ci --ignore-scripts` → 复制源码 → `prisma generate` → `next build`，runner 阶段仅复制必要产物
+- Nginx 配置 Gzip 压缩、静态资源缓存（`/_next/static` 365天）、安全头（X-Frame-Options, X-Content-Type-Options, X-XSS-Protection）
 
 <!-- superpowers-zh:begin (do not edit between these markers) -->
 # Superpowers-ZH 中文增强版

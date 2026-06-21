@@ -39,16 +39,21 @@ export async function PUT(
 
     const { name, color } = await request.json();
 
-    const updateData: Record<string, string> = {};
+    const updateData: { name?: string; icon?: string; color?: string } = {};
     if (name !== undefined) {
-      if (typeof name !== "string" || name.trim().length > 30) {
+      if (!name || typeof name !== "string" || name.trim().length < 1 || name.trim().length > 30) {
         return apiError("分类名称须为 1-30 个字符", 1001);
       }
       updateData.name = name.trim();
       // 图标自动设为名称首字
       updateData.icon = name.trim().charAt(0);
     }
-    if (color !== undefined) updateData.color = color;
+    if (color !== undefined) {
+      if (!color || typeof color !== "string" || !/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        return apiError("请提供有效的 #HEX 颜色值", 1001);
+      }
+      updateData.color = color;
+    }
 
     const updated = await prisma.category.update({
       where: { id: categoryId },
@@ -123,9 +128,13 @@ export async function DELETE(
     }
 
     // 事务：迁移记录 → 删除分类
+    // 系统预设分类（userId=null）影响所有用户，需迁移全部记录
     const [migrateResult] = await prisma.$transaction([
       prisma.transaction.updateMany({
-        where: { categoryId, userId: user.userId },
+        where: {
+          categoryId,
+          ...(category.userId !== null ? { userId: user.userId } : {}),
+        },
         data: { categoryId: migrateToId },
       }),
       prisma.category.delete({ where: { id: categoryId } }),

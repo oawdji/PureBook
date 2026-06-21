@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     if (!name || typeof name !== "string" || name.trim().length > 30) {
       return apiError("分类名称须为 1-30 个字符", 1001);
     }
-    if (!color || typeof color !== "string") {
-      return apiError("请选择分类颜色", 1001);
+    if (!color || typeof color !== "string" || !/^#[0-9A-Fa-f]{6}$/.test(color)) {
+      return apiError("请提供有效的 #HEX 颜色值", 1001);
     }
 
     // 检查同名分类（不区分大小写）

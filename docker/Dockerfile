@@ -10,7 +10,7 @@ RUN apk add --no-cache openssl
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 
-# 再复制全部源码（含 prisma schema）
+# 再复制全部源码（含 prisma schema、app 目录）
 COPY . .
 
 # 手动执行 prisma generate（此时 schema 已就位）
@@ -34,13 +34,12 @@ RUN apk add --no-cache openssl
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
-# 从 builder 复制生成物
+# 从 builder 复制生成物（删除了 public 拷贝行）
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./
 COPY --from=builder /app/next.config.mjs ./
+COPY --from=builder /app/package.json ./
 
 EXPOSE 3000
 
